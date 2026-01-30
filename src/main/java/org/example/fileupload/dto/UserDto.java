@@ -6,20 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-
-
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class UserProjectsResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDto {
 
-    private Integer userId;
+    private Integer id;
     private String fullName;
-
-    private List<UploadedFileDto> projects;
+    private String email;
+    private String role;           // String sifatida, enum'dan o'tkazilgan
 }
-
 

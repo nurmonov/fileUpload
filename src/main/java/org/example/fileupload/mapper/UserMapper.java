@@ -1,21 +1,22 @@
 package org.example.fileupload.mapper;
 
-import org.example.fileupload.dto.UserCreateRequest;
-import org.example.fileupload.dto.UserResponse;
-import org.example.fileupload.entity.User;
-import org.mapstruct.*;
+// UserMapper.java (MapStruct ishlatib, mukammal va avtomatik mapping uchun)
 
-import java.util.List;
+import org.example.fileupload.dto.UserDto;
+import org.example.fileupload.dto.UserSummaryDto;
+import org.example.fileupload.entity.User;
+import org.example.fileupload.entity.enums.Role;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "id", ignore = true)
-    User toEntity(UserCreateRequest dto);
+    UserDto toDto(User user);
 
-    UserResponse toResponse(User entity);
+    UserSummaryDto toSummaryDto(User user);
 
-    List<UserResponse> toResponseList(List<User> entities);
-
-
+    default String map(Role role) {
+        return role != null ? role.name() : null;
+    }
 }

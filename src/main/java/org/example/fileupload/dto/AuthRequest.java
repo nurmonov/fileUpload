@@ -4,13 +4,13 @@ package org.example.fileupload.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Data
-public class LoginRequest {
-    @NotBlank(message = "Telefon raqami bo'sh bo'lmasligi kerak")
-    private String email;
+import lombok.Data;
 
-    @NotBlank(message = "Parol bo'sh bo'lmasligi kerak")
+@Data
+public class AuthRequest {
+    private String email;
     private String password;
+    private String fullName;  // Register uchun
 }
 
 
