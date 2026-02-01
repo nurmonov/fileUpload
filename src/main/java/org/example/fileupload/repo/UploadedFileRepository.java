@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UploadedFileRepository extends JpaRepository<UploadedFile, Long> {
+public interface UploadedFileRepository extends JpaRepository<UploadedFile, Integer> {
 
     // Foydalanuvchi uchun o'z fayllarini topish (owner sifatida)
     List<UploadedFile> findByOwnerId(Integer ownerId);

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FileActivityRepository extends JpaRepository<FileActivity, Long> {
+public interface FileActivityRepository extends JpaRepository<FileActivity, Integer> {
 
     // Fayl uchun barcha activities ni topish (timeline uchun)
     List<FileActivity> findByFileIdOrderByTimestampDesc(Long fileId);

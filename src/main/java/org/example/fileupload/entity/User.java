@@ -20,6 +20,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"ownedFiles", "accessibleFiles"})
 public class User implements UserDetails {
 
     @Id

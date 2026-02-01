@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/api/files/upload-multiple"
 
                         ).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
 

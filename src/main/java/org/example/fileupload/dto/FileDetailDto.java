@@ -1,12 +1,14 @@
 package org.example.fileupload.dto;
 
 
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
+
 
 @Data
 @Builder
@@ -23,8 +25,9 @@ public class FileDetailDto {
     private LocalDateTime uploadDate;
 
     private UserSummaryDto owner;
-    private Set<UserSummaryDto> usersWithAccess;
+    // private Set<UserSummaryDto> usersWithAccess;   ← BU QATORNI OLIB TASHLANG
 
-    private List<FileActivityDto> activities;   // timeline
+    private List<FileActivityDto> activities;
+    private String fileUrl;
 }
 
