@@ -1,14 +1,18 @@
 package org.example.fileupload.dto;
 
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponse {
     private String token;
+    private String tokenType;
+    private String email;
+    private String fullName;
 
-    public AuthResponse(String token) {
-        this.token = token;
-    }
 }
 

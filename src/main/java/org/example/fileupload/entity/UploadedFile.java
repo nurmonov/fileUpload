@@ -1,5 +1,7 @@
 package org.example.fileupload.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 @Entity
 @Table(name = "uploaded_files")
 @Getter
@@ -32,6 +35,7 @@ public class UploadedFile {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonBackReference("user-owned-files")
     private User owner;
 
     @ManyToMany
@@ -40,14 +44,13 @@ public class UploadedFile {
             joinColumns = @JoinColumn(name = "file_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @Builder.Default
+    @JsonManagedReference("user-accessible-files")
     private Set<User> usersWithAccess = new HashSet<>();
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("timestamp DESC")
-    @Builder.Default
+    @JsonBackReference("file-activities")
     private List<FileActivity> activities = new ArrayList<>();
-
 
     public void addUser(User user) {
         if (user != null) {

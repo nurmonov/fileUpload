@@ -3,13 +3,12 @@ package org.example.fileupload.dto;
 
 import lombok.*;
 
-@Data
 @Builder
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateFileRequest {
 
-    private String originalFileName;   // MultipartFile'dan olinadi, lekin metadata uchun
-    // contentType va fileSize ham MultipartFile'dan olinadi
-    // filePath yoki data ni service'da boshqaramiz
+    private String originalFileName;
 }

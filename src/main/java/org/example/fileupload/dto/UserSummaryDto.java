@@ -4,7 +4,8 @@ package org.example.fileupload.dto;
 
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

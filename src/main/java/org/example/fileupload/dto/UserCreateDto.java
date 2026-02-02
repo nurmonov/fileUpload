@@ -3,16 +3,16 @@ package org.example.fileupload.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class UserCreateDto {
 
-    private Integer id;
     private String fullName;
     private String email;
-    private String role;           // String sifatida, enum'dan o'tkazilgan
-}
 
+    private String password;
+
+    private String role;
+}

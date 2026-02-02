@@ -122,22 +122,22 @@ public class FileService {
                                 .file(entity)
                                 .performedBy(sharedUser)  // Ulashilgan user (ID: 2, 3, ...)
                                 .action(FileAction.SHARE)
-                                .details("Fayl siz bilan " + uploader.getEmail() + " tomonidan ulashildi")
+                                .details("Fayl "+userId+ " bilan " + uploader.getEmail() + " tomonidan ulashildi")
                                 .timestamp(LocalDateTime.now())
                                 .build();
                         entity.getActivities().add(shareActivity);
 
                         // Variant 2: Agar SHARE log'ini faqat uploader tomonidan bajarilgan deb hisoblasak
-                    /*
-                    FileActivity shareActivity = FileActivity.builder()
-                            .file(entity)
-                            .performedBy(uploader)  // Ulashishni boshlagan user
-                            .action(FileAction.SHARE)
-                            .details("Fayl " + sharedUser.getEmail() + " ga ulashildi")
-                            .timestamp(LocalDateTime.now())
-                            .build();
-                    entity.getActivities().add(shareActivity);
-                    */
+                /*
+                FileActivity shareActivity = FileActivity.builder()
+                        .file(entity)
+                        .performedBy(uploader)  // Ulashishni boshlagan user
+                        .action(FileAction.SHARE)
+                        .details("Fayl " + sharedUser.getEmail() + " ga ulashildi")
+                        .timestamp(LocalDateTime.now())
+                        .build();
+                entity.getActivities().add(shareActivity);
+                */
                     }
                 }
 
@@ -155,7 +155,7 @@ public class FileService {
                 result.add(dto);
 
             } catch (IOException e) {
-          //      log.error("Fayl saqlashda xato: {} → {}", file.getOriginalFilename(), e.getMessage(), e);
+                //      log.error("Fayl saqlashda xato: {} → {}", file.getOriginalFilename(), e.getMessage(), e);
                 throw new RuntimeException("Fayl saqlashda xato: " + file.getOriginalFilename(), e);
             }
         }

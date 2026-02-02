@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/files/download/**",
                                 "/uploads/**",
+                                "/api/test/**",
                                 "api/files/upload",
                                 "/api/files/upload-multiple"
 

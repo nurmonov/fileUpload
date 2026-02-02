@@ -4,9 +4,9 @@ package org.example.fileupload.dto;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,7 +1,7 @@
 package org.example.fileupload.entity;
 
-// FileActivity.java  (log / description uchun)
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.fileupload.entity.enums.FileAction;
@@ -25,10 +25,12 @@ public class FileActivity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", nullable = false)
+    @JsonManagedReference("file-activities")
     private UploadedFile file;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("user-activities")
     private User performedBy;
 
     @Enumerated(EnumType.STRING)

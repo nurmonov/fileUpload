@@ -1,6 +1,7 @@
-// User.java
 package org.example.fileupload.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.fileupload.entity.enums.Role;
@@ -21,7 +22,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"ownedFiles", "accessibleFiles", "activities"})  // ⬅️ IMPORTANT
+@ToString(exclude = {"ownedFiles", "accessibleFiles", "activities"})
 @EqualsAndHashCode(exclude = {"ownedFiles", "accessibleFiles", "activities"})
 public class User implements UserDetails {
 
@@ -39,14 +40,17 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-owned-files")
     private List<UploadedFile> ownedFiles = new ArrayList<>();
 
-
     @ManyToMany(mappedBy = "usersWithAccess")
+    @JsonBackReference("user-accessible-files")
     private Set<UploadedFile> accessibleFiles = new HashSet<>();
 
+    @OneToMany(mappedBy = "performedBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-activities")
+    private List<FileActivity> activities = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

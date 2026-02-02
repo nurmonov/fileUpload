@@ -1,10 +1,13 @@
 package org.example.fileupload.dto;
 
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthRequest {
-    private String email;      // login uchun asosiy
-    private String password;   // parol
+    private String email;
+    private String password;
 }
