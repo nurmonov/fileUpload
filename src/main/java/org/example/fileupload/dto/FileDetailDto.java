@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 
 @Data
@@ -25,7 +26,7 @@ public class FileDetailDto {
     private LocalDateTime uploadDate;
 
     private UserSummaryDto owner;
-    // private Set<UserSummaryDto> usersWithAccess;   ← BU QATORNI OLIB TASHLANG
+    private Set<UserSummaryDto> usersWithAccess;  // ← BU QATORNI OLIB TASHLANG
 
     private List<FileActivityDto> activities;
     private String fileUrl;

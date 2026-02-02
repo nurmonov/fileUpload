@@ -19,12 +19,12 @@ public class UploadedFileDto {
     private String storedFileName;
     private String contentType;
     private Long fileSize;
-    private String filePath;
+    private String filePath;           // agar frontendga kerak bo'lsa (lekin odatda yashirin)
     private LocalDateTime uploadDate;
-    private UserSummaryDto owner;
-    private String fileUrl;
 
-    // BU YERNI OLIB TASHLANG yoki quyidagicha qiling:
-    // @JsonIgnore
-    // private Set<UserSummaryDto> usersWithAccess;
+    private UserSummaryDto owner;
+    private Set<UserSummaryDto> usersWithAccess;
+
+    // Yangi qo'shilgan maydon – frontend uchun yuklab olish havolasi
+    private String fileUrl;            // masalan: "/api/files/download/uuid_filename.pdf"
 }
