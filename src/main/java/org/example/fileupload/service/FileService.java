@@ -104,7 +104,7 @@ public class FileService {
                         .details(details)
                         .timestamp(LocalDateTime.now())
                         .build();
-                entity.getActivities().add(uploadActivity);
+                safeAddActivity(entity, uploadActivity);
 
                 // Qo'shimcha userlarni ulashish (sharedUserIds)
                 if (sharedUserIds != null && !sharedUserIds.isEmpty()) {
@@ -125,8 +125,7 @@ public class FileService {
                                 .details("Fayl "+userId+ " bilan " + uploader.getEmail() + " tomonidan ulashildi")
                                 .timestamp(LocalDateTime.now())
                                 .build();
-                        entity.getActivities().add(shareActivity);
-
+                        safeAddActivity(entity, shareActivity);
                         // Variant 2: Agar SHARE log'ini faqat uploader tomonidan bajarilgan deb hisoblasak
                 /*
                 FileActivity shareActivity = FileActivity.builder()
@@ -260,5 +259,12 @@ public class FileService {
         }
 
         return uploadedFileMapper.toDto(file);
+    }
+
+    private void safeAddActivity(UploadedFile entity, FileActivity activity) {
+        if (entity.getActivities() == null) {
+            entity.setActivities(new ArrayList<>());
+        }
+        entity.getActivities().add(activity);
     }
 }

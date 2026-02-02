@@ -1,10 +1,6 @@
 package org.example.fileupload.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.fileupload.dto.CreateFileRequest;
-import org.example.fileupload.dto.FileActivityDto;
-import org.example.fileupload.dto.FileDetailDto;
-import org.example.fileupload.dto.ShareFileRequest;
 import org.example.fileupload.dto.UploadedFileDto;
 import org.example.fileupload.entity.User;
 import org.example.fileupload.mapper.UploadedFileMapper;
@@ -13,7 +9,6 @@ import org.example.fileupload.repo.UserRepository;
 import org.example.fileupload.service.FileService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,7 +50,7 @@ public class FileController {
                     .collect(Collectors.toList());
         }
 
-
+        System.out.println(sharedUserIds);
         return ResponseEntity.ok(fileService.uploadMultipleFiles(files, userId, description, sharedUserIds));
     }
 

@@ -53,9 +53,25 @@ public class UploadedFile {
     private List<FileActivity> activities = new ArrayList<>();
 
     public void addUser(User user) {
-        if (user != null) {
-            this.usersWithAccess.add(user);
+        if (user == null) {
+            return;  // yoki throw qilish mumkin, lekin ko‘pincha return yetarli
         }
+
+        if (this.usersWithAccess == null) {
+            this.usersWithAccess = new HashSet<>();
+        }
+
+        this.usersWithAccess.add(user);
+    }
+    public void addActivity(FileActivity activity) {
+        if (activity == null) {
+            return;
+        }
+        if (this.activities == null) {
+            this.activities = new ArrayList<>();
+        }
+        this.activities.add(activity);
+        activity.setFile(this);
     }
 
     public boolean isOwner(User user) {
