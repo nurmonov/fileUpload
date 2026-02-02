@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FileActivityDto {
 
-    private Long id;
+    private Integer id;
     private UserSummaryDto performedBy;
-    private String action;               // enum string sifatida
+    private String action;
     private String details;
     private LocalDateTime timestamp;
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -14,17 +15,17 @@ import java.util.Set;
 @AllArgsConstructor
 public class UploadedFileDto {
 
-    private Long id;
+    private Integer id;
     private String originalFileName;
     private String storedFileName;
     private String contentType;
     private Long fileSize;
-    private String filePath;           // agar frontendga kerak bo'lsa (lekin odatda yashirin)
+    private String filePath;
     private LocalDateTime uploadDate;
 
     private UserSummaryDto owner;
-    private Set<UserSummaryDto> usersWithAccess;
+    private List<UserSummaryDto> usersWithAccess;
 
-    // Yangi qo'shilgan maydon – frontend uchun yuklab olish havolasi
-    private String fileUrl;            // masalan: "/api/files/download/uuid_filename.pdf"
+
+    private String fileUrl;
 }

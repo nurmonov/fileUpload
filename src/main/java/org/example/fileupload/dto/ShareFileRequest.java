@@ -3,6 +3,7 @@ package org.example.fileupload.dto;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -11,6 +12,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class ShareFileRequest {
 
-    private Long fileId;
-    private Set<Integer> userIds;   // ulashmoqchi bo'lgan userlarning ID'lari
+    private Integer fileId;
+    private List<Integer> userIds;
 }

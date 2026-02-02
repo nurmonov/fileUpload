@@ -10,15 +10,18 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "file_activities")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"file", "performedBy"})
+@EqualsAndHashCode(exclude = {"file", "performedBy"})
 public class FileActivity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id", nullable = false)
@@ -32,7 +35,7 @@ public class FileActivity {
     @Column(nullable = false)
     private FileAction action;
 
-    private String details;                    // masalan: "Fayl nomi o'zgartirildi", "2-bob qo'shildi"
+    private String details;
 
     @Column(nullable = false)
     private LocalDateTime timestamp = LocalDateTime.now();

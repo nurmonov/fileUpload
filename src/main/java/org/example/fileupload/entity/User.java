@@ -16,11 +16,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"ownedFiles", "accessibleFiles"})
+@ToString(exclude = {"ownedFiles", "accessibleFiles", "activities"})  // ⬅️ IMPORTANT
+@EqualsAndHashCode(exclude = {"ownedFiles", "accessibleFiles", "activities"})
 public class User implements UserDetails {
 
     @Id
@@ -37,15 +39,15 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // Men yaratgan fayllar (owner sifatida)
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UploadedFile> ownedFiles = new ArrayList<>();
 
-    // Menga ulashilgan fayllar (shu jumladan o'zimniki ham)
+
     @ManyToMany(mappedBy = "usersWithAccess")
     private Set<UploadedFile> accessibleFiles = new HashSet<>();
 
-    // UserDetails metodlari (minimal, real loyihada to'liqroq qilish mumkin)
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));

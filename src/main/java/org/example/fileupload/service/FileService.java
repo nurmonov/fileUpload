@@ -14,6 +14,7 @@ import org.example.fileupload.repo.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,7 +37,7 @@ public class FileService {
     private final UploadedFileMapper uploadedFileMapper;
 
 
-    // Current user ni JWT orqali olish
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -46,7 +47,7 @@ public class FileService {
     @Transactional
     public List<UploadedFileDto> uploadMultipleFiles(
             MultipartFile[] files,
-            Integer userId,                     // yangi parametr
+            Integer userId,
             String description,
             List<Integer> sharedUserIds
     ) {
@@ -78,6 +79,8 @@ public class FileService {
                 String storedFilename = UUID.randomUUID() + extension;
                 Path targetPath = Paths.get(UPLOAD_DIR).resolve(storedFilename);
 
+                // Papka mavjudligini tekshirish va yaratish
+                Files.createDirectories(targetPath.getParent());
                 Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
                 UploadedFile entity = UploadedFile.builder()
@@ -87,22 +90,21 @@ public class FileService {
                         .contentType(file.getContentType())
                         .fileSize(file.getSize())
                         .uploadDate(LocalDateTime.now())
-                        .owner(uploader)               // ← uploader = requestdagi userId
+                        .owner(uploader)
                         .build();
 
                 // Owner'ni access ro'yxatiga qo'shamiz
                 entity.addUser(uploader);
 
-                // Activity log (uploader nomi bilan)
-                FileActivity activity = FileActivity.builder()
+                // UPLOAD Activity log - uploader tomonidan
+                FileActivity uploadActivity = FileActivity.builder()
                         .file(entity)
-                        .performedBy(uploader)
+                        .performedBy(uploader)  // Faylni yuklagan user
                         .action(FileAction.UPLOAD)
                         .details(details)
                         .timestamp(LocalDateTime.now())
                         .build();
-
-                entity.getActivities().add(activity);
+                entity.getActivities().add(uploadActivity);
 
                 // Qo'shimcha userlarni ulashish (sharedUserIds)
                 if (sharedUserIds != null && !sharedUserIds.isEmpty()) {
@@ -114,27 +116,47 @@ public class FileService {
 
                         entity.addUser(sharedUser);
 
-                        FileActivity shareAct = FileActivity.builder()
+                        // **MUHIM O'ZGARTIRISH: SHARE log'ini to'g'ri yaratish**
+                        // Variant 1: Agar SHARE log'ini har bir ulashilgan user uchun alohida yozmoqchi bo'lsak
+                        FileActivity shareActivity = FileActivity.builder()
                                 .file(entity)
-                                .performedBy(uploader)
+                                .performedBy(sharedUser)  // Ulashilgan user (ID: 2, 3, ...)
                                 .action(FileAction.SHARE)
-                                .details("Ulashildi: " + sharedUser.getEmail() + " (yuklash vaqtida)")
+                                .details("Fayl siz bilan " + uploader.getEmail() + " tomonidan ulashildi")
                                 .timestamp(LocalDateTime.now())
                                 .build();
+                        entity.getActivities().add(shareActivity);
 
-                        entity.getActivities().add(shareAct);
+                        // Variant 2: Agar SHARE log'ini faqat uploader tomonidan bajarilgan deb hisoblasak
+                    /*
+                    FileActivity shareActivity = FileActivity.builder()
+                            .file(entity)
+                            .performedBy(uploader)  // Ulashishni boshlagan user
+                            .action(FileAction.SHARE)
+                            .details("Fayl " + sharedUser.getEmail() + " ga ulashildi")
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                    entity.getActivities().add(shareActivity);
+                    */
                     }
                 }
 
                 uploadedFileRepository.save(entity);
 
+                // Fayl URL'sini yaratish
+                String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/api/files/download/")
+                        .path(entity.getStoredFileName())
+                        .toUriString();
+
                 UploadedFileDto dto = uploadedFileMapper.toDto(entity);
-                dto.setFileUrl("/api/files/download/" + entity.getStoredFileName());
+                dto.setFileUrl(fileUrl);
 
                 result.add(dto);
 
             } catch (IOException e) {
-                System.err.println("Fayl saqlashda xato: " + file.getOriginalFilename() + " → " + e.getMessage());
+          //      log.error("Fayl saqlashda xato: {} → {}", file.getOriginalFilename(), e.getMessage(), e);
+                throw new RuntimeException("Fayl saqlashda xato: " + file.getOriginalFilename(), e);
             }
         }
 

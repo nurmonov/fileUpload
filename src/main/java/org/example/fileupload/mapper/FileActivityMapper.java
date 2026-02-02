@@ -17,7 +17,7 @@ public interface FileActivityMapper {
     @Mapping(target = "performedBy", source = "performedBy", qualifiedByName = "userToSummary")  // minimal mapping
     FileActivityDto toDto(FileActivity activity);
 
-    // Minimal mapping uchun default metod
+
     @Named("userToSummary")
     default UserSummaryDto userToSummary(User user) {
         if (user == null) return null;

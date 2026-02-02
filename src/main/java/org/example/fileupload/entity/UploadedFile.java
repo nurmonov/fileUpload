@@ -10,16 +10,18 @@ import java.util.List;
 import java.util.Set;
 @Entity
 @Table(name = "uploaded_files")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"owner", "usersWithAccess", "activities"})
+@EqualsAndHashCode(exclude = {"owner", "usersWithAccess", "activities"})
 public class UploadedFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String originalFileName;
     private String storedFileName;
@@ -38,15 +40,15 @@ public class UploadedFile {
             joinColumns = @JoinColumn(name = "file_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @Builder.Default                  // ← bu allaqachon qo'shilgan bo'lsa ham qoldiring
+    @Builder.Default
     private Set<User> usersWithAccess = new HashSet<>();
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("timestamp DESC")
-    @Builder.Default                  // ← BU YERGA HAM QO'SHING!
+    @Builder.Default
     private List<FileActivity> activities = new ArrayList<>();
 
-    // Qo'shimcha metodlar (agar bor bo'lsa)
+
     public void addUser(User user) {
         if (user != null) {
             this.usersWithAccess.add(user);

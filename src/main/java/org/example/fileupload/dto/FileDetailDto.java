@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class FileDetailDto {
 
-    private Long id;
+    private Integer id;
     private String originalFileName;
     private String storedFileName;
     private String contentType;
@@ -26,7 +26,7 @@ public class FileDetailDto {
     private LocalDateTime uploadDate;
 
     private UserSummaryDto owner;
-    private Set<UserSummaryDto> usersWithAccess;  // ← BU QATORNI OLIB TASHLANG
+    private List<UserSummaryDto> usersWithAccess;
 
     private List<FileActivityDto> activities;
     private String fileUrl;
