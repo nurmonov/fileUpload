@@ -20,6 +20,8 @@ public class UploadedFileDto {
     private Long fileSize;
     private String filePath;
     private LocalDateTime uploadDate;
+    private String asos;
+    private String ishlatilihsi;
 
     private UserSummaryDto owner;
     private List<UserSummaryDto> usersWithAccess;

@@ -22,9 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,34 +34,46 @@ public class FileService {
     private final UserRepository userRepository;
     private final UploadedFileMapper uploadedFileMapper;
 
-
-
+    // =========================
+    // CURRENT USER
+    // =========================
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Foydalanuvchi topilmadi"));
     }
 
+    // =========================
+    // UPLOAD MULTIPLE FILES
+    // =========================
     @Transactional
     public List<UploadedFileDto> uploadMultipleFiles(
             MultipartFile[] files,
             Integer userId,
             String description,
-            List<Integer> sharedUserIds
+            List<Integer> sharedUserIds,
+            String asos,
+            String ishlatilishi
     ) {
-        List<UploadedFileDto> result = new ArrayList<>();
 
         if (files == null || files.length == 0) {
             throw new IllegalArgumentException("Hech qanday fayl tanlanmagan");
         }
 
-        // User ni ID orqali topamiz (requestdan kelgan)
         User uploader = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Berilgan userId topilmadi: " + userId));
+                .orElseThrow(() -> new IllegalArgumentException("User topilmadi: " + userId));
+
+        List<UploadedFileDto> result = new ArrayList<>();
 
         String details = "Fayllar yuklandi";
         if (description != null && !description.isBlank()) {
             details += ". Tavsif: " + description;
+        }
+        if (asos != null && !asos.isBlank()) {
+            details += ". Asos: " + asos;
+        }
+        if (ishlatilishi != null && !ishlatilishi.isBlank()) {
+            details += ". Ishlatilishi: " + ishlatilishi;
         }
 
         for (MultipartFile file : files) {
@@ -72,6 +82,7 @@ public class FileService {
             try {
                 String originalFilename = file.getOriginalFilename();
                 String extension = "";
+
                 if (originalFilename != null && originalFilename.contains(".")) {
                     extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 }
@@ -79,7 +90,6 @@ public class FileService {
                 String storedFilename = UUID.randomUUID() + extension;
                 Path targetPath = Paths.get(UPLOAD_DIR).resolve(storedFilename);
 
-                // Papka mavjudligini tekshirish va yaratish
                 Files.createDirectories(targetPath.getParent());
                 Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -91,58 +101,46 @@ public class FileService {
                         .fileSize(file.getSize())
                         .uploadDate(LocalDateTime.now())
                         .owner(uploader)
+                        .asos(asos)
+                        .ishlatilishi(ishlatilishi)
                         .build();
 
-                // Owner'ni access ro'yxatiga qo'shamiz
+                // Owner access
                 entity.addUser(uploader);
 
-                // UPLOAD Activity log - uploader tomonidan
+                // UPLOAD activity
                 FileActivity uploadActivity = FileActivity.builder()
                         .file(entity)
-                        .performedBy(uploader)  // Faylni yuklagan user
+                        .performedBy(uploader)
                         .action(FileAction.UPLOAD)
                         .details(details)
                         .timestamp(LocalDateTime.now())
                         .build();
                 safeAddActivity(entity, uploadActivity);
 
-                // Qo'shimcha userlarni ulashish (sharedUserIds)
+                // SHARE users
                 if (sharedUserIds != null && !sharedUserIds.isEmpty()) {
                     for (Integer sharedId : sharedUserIds) {
-                        if (sharedId.equals(userId)) continue; // o'zini qayta qo'shmaymiz
+                        if (sharedId.equals(userId)) continue;
 
                         User sharedUser = userRepository.findById(sharedId)
-                                .orElseThrow(() -> new IllegalArgumentException("Ulashiladigan user topilmadi: " + sharedId));
+                                .orElseThrow(() -> new RuntimeException("Shared user topilmadi: " + sharedId));
 
                         entity.addUser(sharedUser);
 
-                        // **MUHIM O'ZGARTIRISH: SHARE log'ini to'g'ri yaratish**
-                        // Variant 1: Agar SHARE log'ini har bir ulashilgan user uchun alohida yozmoqchi bo'lsak
                         FileActivity shareActivity = FileActivity.builder()
                                 .file(entity)
-                                .performedBy(sharedUser)  // Ulashilgan user (ID: 2, 3, ...)
+                                .performedBy(sharedUser)
                                 .action(FileAction.SHARE)
-                                .details("Fayl "+userId+ " bilan " + uploader.getEmail() + " tomonidan ulashildi")
+                                .details("Fayl " + uploader.getEmail() + " tomonidan ulashildi")
                                 .timestamp(LocalDateTime.now())
                                 .build();
                         safeAddActivity(entity, shareActivity);
-                        // Variant 2: Agar SHARE log'ini faqat uploader tomonidan bajarilgan deb hisoblasak
-                /*
-                FileActivity shareActivity = FileActivity.builder()
-                        .file(entity)
-                        .performedBy(uploader)  // Ulashishni boshlagan user
-                        .action(FileAction.SHARE)
-                        .details("Fayl " + sharedUser.getEmail() + " ga ulashildi")
-                        .timestamp(LocalDateTime.now())
-                        .build();
-                entity.getActivities().add(shareActivity);
-                */
                     }
                 }
 
                 uploadedFileRepository.save(entity);
 
-                // Fayl URL'sini yaratish
                 String fileUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/api/files/download/")
                         .path(entity.getStoredFileName())
@@ -154,46 +152,58 @@ public class FileService {
                 result.add(dto);
 
             } catch (IOException e) {
-                //      log.error("Fayl saqlashda xato: {} → {}", file.getOriginalFilename(), e.getMessage(), e);
                 throw new RuntimeException("Fayl saqlashda xato: " + file.getOriginalFilename(), e);
             }
         }
 
         if (result.isEmpty()) {
-            throw new RuntimeException("Hech qanday fayl muvaffaqiyatli yuklanmadi");
+            throw new RuntimeException("Hech qanday fayl yuklanmadi");
         }
 
         return result;
     }
 
-    // FileService ichiga quyidagi metodlarni qo'shing (oldingi kod bilan birga)
-
+    // =========================
+    // UPDATE FILE
+    // =========================
     @Transactional
-    public UploadedFileDto updateFile(Integer fileId, MultipartFile newFile, String description) throws IOException {
-        User currentUser = getCurrentUser();  // yoki userId orqali, sizning variantingizga qarab
+    public UploadedFileDto updateFile(
+            Integer fileId,
+            MultipartFile newFile,
+            String description,
+            String asos,
+            String ishlatilishi
+    ) throws IOException {
+
+        User currentUser = getCurrentUser();
 
         UploadedFile file = uploadedFileRepository.findById(fileId)
                 .orElseThrow(() -> new RuntimeException("Fayl topilmadi: " + fileId));
 
-        // Huquq tekshirish: faqat owner yoki access bor user o'zgartira oladi
         if (!file.isAccessibleBy(currentUser)) {
             throw new RuntimeException("Bu faylni o'zgartirish huquqingiz yo'q");
         }
 
         String details = "Fayl o'zgartirildi";
+
         if (description != null && !description.isBlank()) {
-            details += ". Yangi tavsif: " + description;
+            details += ". Tavsif: " + description;
+        }
+        if (asos != null && !asos.isBlank()) {
+            details += ". Asos: " + asos;
+            file.setAsos(asos);
+        }
+        if (ishlatilishi != null && !ishlatilishi.isBlank()) {
+            details += ". Ishlatilishi: " + ishlatilishi;
+            file.setIshlatilishi(ishlatilishi);
         }
 
-        // Agar yangi fayl yuborilgan bo'lsa — eski faylni o'chirib, yangisini saqlaymiz
         if (newFile != null && !newFile.isEmpty()) {
-            // Eski faylni diskdan o'chirish (ixtiyoriy, lekin tavsiya etiladi)
-            Path oldPath = Paths.get(file.getFilePath());
-            Files.deleteIfExists(oldPath);
+            Files.deleteIfExists(Paths.get(file.getFilePath()));
 
-            // Yangi faylni saqlash
             String originalFilename = newFile.getOriginalFilename();
             String extension = "";
+
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
@@ -203,7 +213,6 @@ public class FileService {
 
             Files.copy(newFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Entity ni yangilash
             file.setOriginalFileName(originalFilename);
             file.setStoredFileName(storedFilename);
             file.setFilePath(targetPath.toString());
@@ -211,9 +220,8 @@ public class FileService {
             file.setFileSize(newFile.getSize());
         }
 
-        file.setUploadDate(LocalDateTime.now());  // oxirgi o'zgarish vaqti
+        file.setUploadDate(LocalDateTime.now());
 
-        // Activity log
         FileActivity activity = FileActivity.builder()
                 .file(file)
                 .performedBy(currentUser)
@@ -232,18 +240,21 @@ public class FileService {
         return dto;
     }
 
+    // =========================
+    // GET FILES
+    // =========================
     public List<UploadedFileDto> getAllFiles() {
         User currentUser = getCurrentUser();
 
-        // Agar admin bo'lsa — hammasini qaytaradi
         if (currentUser.getRole() == Role.ADMIN) {
-            return uploadedFileRepository.findAll().stream()
+            return uploadedFileRepository.findAll()
+                    .stream()
                     .map(uploadedFileMapper::toDto)
                     .toList();
         }
 
-        // Oddiy user uchun faqat o'ziga tegishli (owned + accessible)
-        return uploadedFileRepository.findAccessibleByUserId(currentUser.getId()).stream()
+        return uploadedFileRepository.findAccessibleByUserId(currentUser.getId())
+                .stream()
                 .map(uploadedFileMapper::toDto)
                 .toList();
     }
@@ -252,15 +263,18 @@ public class FileService {
         User currentUser = getCurrentUser();
 
         UploadedFile file = uploadedFileRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("Fayl topilmadi: " + fileId));
+                .orElseThrow(() -> new RuntimeException("Fayl topilmadi"));
 
         if (!file.isAccessibleBy(currentUser)) {
-            throw new RuntimeException("Bu faylni ko'rish huquqingiz yo'q");
+            throw new RuntimeException("Bu faylni ko‘rish huquqingiz yo‘q");
         }
 
         return uploadedFileMapper.toDto(file);
     }
 
+    // =========================
+    // HELPERS
+    // =========================
     private void safeAddActivity(UploadedFile entity, FileActivity activity) {
         if (entity.getActivities() == null) {
             entity.setActivities(new ArrayList<>());

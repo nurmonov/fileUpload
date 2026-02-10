@@ -22,6 +22,8 @@ public class FileDetailDto {
     private Long fileSize;
     private String filePath;
     private LocalDateTime uploadDate;
+    private String asos;
+    private String ishlatilishi;
 
     private UserSummaryDto owner;
     private List<UserSummaryDto> usersWithAccess;

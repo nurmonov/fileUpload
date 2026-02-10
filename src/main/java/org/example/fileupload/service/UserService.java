@@ -89,9 +89,9 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User topilmadi: " + id));
 
         // Faqat o'zini o'chirishi mumkin
-        if (!user.getEmail().equals(currentUser.getUsername())) {
-            throw new AccessDeniedException("Faqat o'zingizni o'chirishingiz mumkin");
-        }
+//        if (!user.getEmail().equals(currentUser.getUsername())) {
+//            throw new AccessDeniedException("Faqat o'zingizni o'chirishingiz mumkin");
+//        }
 
         userRepository.delete(user);
     }

@@ -37,7 +37,10 @@ public class FileController {
             @RequestPart("files") MultipartFile[] files,
             @RequestPart(value = "userId") String userIdStr,          // String qilib oling
             @RequestPart(value = "description", required = false) String description,
-            @RequestPart(value = "sharedUserIds", required = false) String sharedUserIdsStr  // JSON string sifatida
+            @RequestPart(value = "sharedUserIds", required = false) String sharedUserIdsStr , // JSON string sifatida
+            @RequestParam String asos,
+            @RequestParam String ishlatilishi
+
     ) {
         Integer userId = Integer.parseInt(userIdStr.trim());
 
@@ -51,18 +54,38 @@ public class FileController {
         }
 
         System.out.println(sharedUserIds);
-        return ResponseEntity.ok(fileService.uploadMultipleFiles(files, userId, description, sharedUserIds));
+        return ResponseEntity.ok(fileService.uploadMultipleFiles(files, userId, description,sharedUserIds,asos,ishlatilishi));
     }
 
 
     @PutMapping(value = "/{fileId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadedFileDto> updateFile(
             @PathVariable Integer fileId,
-            @RequestPart(value = "file", required = false) MultipartFile newFile,      // yangi fayl ixtiyoriy
-            @RequestPart(value = "description", required = false) String description) throws IOException {
 
-        return ResponseEntity.ok(fileService.updateFile(fileId, newFile, description));
+            @RequestPart(value = "file", required = false)
+            MultipartFile newFile,   // yangi fayl (ixtiyoriy)
+
+            @RequestPart(value = "description", required = false)
+            String description,
+
+            @RequestPart(value = "asos", required = false)
+            String asos,
+
+            @RequestPart(value = "ishlatilishi", required = false)
+            String ishlatilishi
+    ) throws IOException {
+
+        UploadedFileDto updatedFile = fileService.updateFile(
+                fileId,
+                newFile,
+                description,
+                asos,
+                ishlatilishi
+        );
+
+        return ResponseEntity.ok(updatedFile);
     }
+
 
     @GetMapping
     public ResponseEntity<List<UploadedFileDto>> getAllFiles() {

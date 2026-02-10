@@ -32,6 +32,8 @@ public class UploadedFile {
     private Long fileSize;
     private String filePath;
     private LocalDateTime uploadDate;
+    private String ishlatilishi;
+    private String asos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
