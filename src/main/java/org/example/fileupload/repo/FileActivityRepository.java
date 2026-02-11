@@ -12,7 +12,7 @@ import java.util.List;
 public interface FileActivityRepository extends JpaRepository<FileActivity, Integer> {
 
 
-    List<FileActivity> findByFileIdOrderByTimestampDesc(Long fileId);
+    List<FileActivity> findByFileIdOrderByTimestampDesc(Integer fileId);
 
 
     List<FileActivity> findByPerformedByIdOrderByTimestampDesc(Integer userId);

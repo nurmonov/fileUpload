@@ -10,5 +10,5 @@ public enum FileAction {
     SHARE,
     UNSHARE,
     DOWNLOAD
-    // kerak bo'lsa qo'shishingiz mumkin
+
 }

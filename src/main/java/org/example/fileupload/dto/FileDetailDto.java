@@ -29,6 +29,8 @@ public class FileDetailDto {
     private List<UserSummaryDto> usersWithAccess;
 
     private List<FileActivityDto> activities;
+
+    private String status;
     private String fileUrl;
 }
 

@@ -14,6 +14,7 @@ public interface UploadedFileMapper {
 
     @Mapping(target = "owner", source = "owner")
     @Mapping(target = "usersWithAccess", source = "usersWithAccess")
+    @Mapping(target = "status", expression = "java(uploadedFile.getStatus() != null ? uploadedFile.getStatus().name() : null)")
     UploadedFileDto toDto(UploadedFile uploadedFile);
 
     @Mapping(target = "owner", source = "owner")

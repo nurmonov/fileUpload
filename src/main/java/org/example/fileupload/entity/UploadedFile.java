@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.fileupload.entity.enums.FileStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,6 +54,13 @@ public class UploadedFile {
     @OrderBy("timestamp DESC")
     @JsonBackReference("file-activities")
     private List<FileActivity> activities = new ArrayList<>();
+
+    // Mavjud UploadedFile class'iga qo'shing
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FileStatus status = FileStatus.REJALASHTIRILGAN
+            ;
+    // Default
 
     public void addUser(User user) {
         if (user == null) {

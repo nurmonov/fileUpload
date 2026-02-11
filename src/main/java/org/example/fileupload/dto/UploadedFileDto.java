@@ -27,5 +27,6 @@ public class UploadedFileDto {
     private List<UserSummaryDto> usersWithAccess;
 
 
+    private String status;
     private String fileUrl;
 }
